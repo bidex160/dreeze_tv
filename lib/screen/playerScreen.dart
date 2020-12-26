@@ -26,8 +26,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
    List<AttributeModel> attribue = [];
    var showchannels = false;
    String x = '';
-   int index1 = 0;
-   int index22 = 0;
+  int indexfous=0;
+  int pagefocus =0;
+   int verticalCounter = 0;
    final focus = FocusNode();
    var _disposed = false;
    BetterPlayerDataSource betterPlayerDataSource;
@@ -40,7 +41,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     _betterPlayerController = BetterPlayerController(
 
         BetterPlayerConfiguration(
-        autoPlay: false,
+        autoPlay: true,
         fullScreenByDefault: true,
         fit: BoxFit.fill,
         controlsConfiguration: BetterPlayerControlsConfiguration(
@@ -59,7 +60,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     print("_initializeAndPlay -----> ");
      betterPlayerDataSource = BetterPlayerDataSource(
          BetterPlayerDataSourceType.NETWORK,
-         '${widget.channels[index1].subhead[index22].link
+         '${widget.channels[pagefocus].subhead[indexfous].link
 
          }');
 
@@ -138,10 +139,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
       //   }
       // }
 
-        if(data.keyCode ==82 || data.keyCode ==21 || data.keyCode ==22 || data.keyCode ==20 ){
-
+        if( data.keyCode ==20 ){
           if(showchannels){
-            print('Showing already');
+            print(verticalCounter);
+            if(verticalCounter < widget.channels.length -1){
+              verticalCounter++;
+              controller.jumpToPage(verticalCounter);
+            }
+
 
           }else{
             setState(() {
@@ -150,6 +155,36 @@ class _PlayerScreenState extends State<PlayerScreen> {
           }
 
 
+
+        }
+        else if(data.keyCode ==66){
+          print('$pagefocus pagefoc');
+          print('$indexfous');
+          _initializeAndPlay();
+
+        }else if(data.keyCode ==19){
+          if(showchannels){
+            setState(() {
+
+             print('vasertical $verticalCounter');
+             if(verticalCounter == 0){
+               c++;
+
+               if(c==2){
+                 showchannels =!showchannels;
+                 c=0;
+               }
+             }
+              if( verticalCounter >= 1){
+                verticalCounter--;
+                controller.jumpToPage(verticalCounter);
+              }
+            });
+          }else {
+            setState(() {
+              showchannels = !showchannels;
+            });
+          }
         }
         print("why does this run twice $_keyCode");
 
@@ -157,7 +192,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
     }
   }
-
+int c= 0;
   Future<bool> _backpressed(){
     if(showchannels ){
       return Future.value(false);
@@ -190,40 +225,48 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   controller: _betterPlayerController,
                 ),
               ),
-              Container(
-                height: Config.yMargin(context, 5),
-                alignment: Alignment.center,
-                child: Text('$x  |9999|$index1||$index22', style: TextStyle(color: Colors.white,
-                  fontSize: 25
-                ),),
-              ),
+              // Container(
+              //   height: Config.yMargin(context, 5),
+              //   alignment: Alignment.center,
+              //   child: Text('$x  |9999', style: TextStyle(color: Colors.white,
+              //     fontSize: 25
+              //   ),),
+              // ),
               if(showchannels)
              Align(
                alignment: Alignment.bottomCenter,
                child: Container(
                  color: Colors.black54,
-                 height:Config.yMargin(context,37),
+                 height:Config.yMargin(context,38),
                  width: Config.xMargin(context, 100),
                 // alignment: Alignment.topLeft,
 
                  child: PageView.builder(
                   controller: controller,
                    scrollDirection: Axis.vertical,
+                   onPageChanged: (int){
+                    setState(() {
+                      pagefocus =int;
 
+                    });
+                   },
                    itemCount:widget.channels.length ,
                    itemBuilder: (BuildContext context, page1index){
                     return Container(
-                      height:Config.yMargin(context,35),
+                      height:Config.yMargin(context,36),
                       color: Colors.black54,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(widget.channels[page1index].Headname, style: appThemeDark.textTheme.title,),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0, bottom: 5),
+                            child: Text(widget.channels[page1index].Headname, style: appThemeDark.textTheme.title,),
+                          ),
                           Container(
                             height:Config.yMargin(context,23),
                             width: Config.xMargin(context, 100),
                             child: ListView.builder(
-                              itemCount: widget.channels[page1index].lenght,
+                              itemCount: widget.channels[page1index].subhead.length,
                               //     shrinkWrap: true,
                               scrollDirection: Axis.horizontal,
                               itemBuilder: (ctx, index2){
@@ -231,8 +274,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                                   onFocusChange: (hasfocus){
                                     if(hasfocus ){
                                       setState(() {
-                                        // index1 = index;
-                                        // index22 = index2;
+                                        indexfous = index2;
                                       });
                                     }
                                   },
@@ -265,7 +307,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
                                                   image: DecorationImage(
                                                       fit: BoxFit.contain,
-                                                      image: widget.channels[page1index].subhead[index2].tvglogo != null? NetworkImage('${attribue[index2].tvglogo}'):Container()
+                                                      image: widget.channels[page1index].subhead[index2].tvglogo != null? NetworkImage('${widget.channels[page1index].subhead[index2].tvglogo}'):Container()
                                                   )
                                               ),
                                               // height: index ==7? Config.yMargin(context, 8) :Config.yMargin(context, 5) ,
@@ -307,7 +349,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                           ),
 
                           if(page1index+1 <widget.channels.length) Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
+                            padding: const EdgeInsets.only(left: 8.0,bottom: 5),
                             child: Text('${widget.channels[page1index+1].Headname }', style: appThemeDark.textTheme.title,),
                           ),
                         // SizedBox(height: 1,),
@@ -315,7 +357,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
                             alignment: Alignment.bottomCenter,
                             child: Container(
-                                height: Config.yMargin(context, 5),
+                                height: Config.yMargin(context, 4),
                                 color: Colors.black54,
                                 width: Config.xMargin(context, 100),
                                 child: SingleChildScrollView(
@@ -334,7 +376,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                                               color:Colors.white12,
                                               borderRadius: BorderRadius.only(topLeft: Radius.circular(18),topRight: Radius.circular(18)),
                                               image: DecorationImage(
-                                                  fit: BoxFit.contain,
+                                                  fit: BoxFit.cover,
                                                   image: NetworkImage(widget.channels[page1index+1].subhead[0].tvglogo)
                                               )
 
@@ -351,7 +393,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                                               color:Colors.white12,
                                               borderRadius: BorderRadius.only(topLeft: Radius.circular(18),topRight: Radius.circular(18)),
                                               image: DecorationImage(
-                                                  fit: BoxFit.contain,
+                                                  fit: BoxFit.cover,
 
                                                   image: NetworkImage(widget.channels[page1index+1].subhead[1].tvglogo,)
                                               )
@@ -372,7 +414,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                                               color:Colors.white12,
                                               borderRadius: BorderRadius.only(topLeft: Radius.circular(18),topRight: Radius.circular(18)),
                                               image: DecorationImage(
-                                                  fit: BoxFit.contain,
+                                                  fit: BoxFit.cover,
                                                   image: NetworkImage(widget.channels[page1index+1].subhead[2].tvglogo)
                                               )
 
@@ -389,7 +431,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                                               color:Colors.white12,
                                               borderRadius: BorderRadius.only(topLeft: Radius.circular(18),topRight: Radius.circular(18)),
                                               image: DecorationImage(
-                                                  fit: BoxFit.contain,
+                                                  fit: BoxFit.cover,
                                                   image: NetworkImage(widget.channels[page1index+1].subhead[3].tvglogo)
                                               )
 
